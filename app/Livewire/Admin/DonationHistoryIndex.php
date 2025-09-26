@@ -84,7 +84,7 @@ class DonationHistoryIndex extends Component
 
         // Apply type filter
         if ($this->typeFilter) {
-            $query->where('type', $this->typeFilter);
+            $query->where('donation_type', $this->typeFilter);
         }
 
         $donationHistories = $query->orderBy('created_at', 'desc')->paginate($this->perPage);

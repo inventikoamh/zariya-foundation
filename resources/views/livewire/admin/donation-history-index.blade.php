@@ -57,7 +57,7 @@
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $this->getTypeIcon($history->type) }}"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $this->getTypeIcon($history->donation_type) }}"></path>
                                 </svg>
                             </div>
                             <div class="ml-4">
@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="mt-1 text-sm text-gray-500">
                                     <p>Donor: {{ $history->donation->donor->name ?? 'Unknown' }}</p>
-                                    <p>Type: {{ ucfirst($history->type) }}</p>
+                                    <p>Type: {{ ucfirst($history->donation_type) }}</p>
                                     @if($history->amount)
                                         <p>Amount: ${{ number_format($history->amount, 2) }}</p>
                                     @endif
