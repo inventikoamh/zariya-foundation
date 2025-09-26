@@ -11,6 +11,9 @@ class RoleMaintenanceMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // Temporarily disable maintenance checks to isolate the getMorphClass error
+        return $next($request);
+
         // Never block system guard users
         if (auth('system')->check()) {
             return $next($request);
@@ -35,12 +38,21 @@ class RoleMaintenanceMiddleware
             $maintenanceAdmin = DB::table('system_settings')
                 ->where('key', 'maintenance_admin')
                 ->value('value') ?? '0';
-            
+
             if ($maintenanceAdmin === '1') {
-                return response()->view('system.maintenance', [
-                    'title' => 'Admin Maintenance',
-                    'message' => 'The admin panel is under maintenance. Please try again later.'
-                ], 503);
+                return response('
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Admin Maintenance</title>
+                        <meta http-equiv="refresh" content="60">
+                    </head>
+                    <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f3f4f6;">
+                        <h1 style="color: #374151; margin-bottom: 20px;">Admin Maintenance</h1>
+                        <p style="color: #6b7280;">The admin panel is under maintenance. Please try again later.</p>
+                    </body>
+                    </html>
+                ', 503);
             }
             return $next($request);
         }
@@ -50,12 +62,21 @@ class RoleMaintenanceMiddleware
             $maintenanceVolunteer = DB::table('system_settings')
                 ->where('key', 'maintenance_volunteer')
                 ->value('value') ?? '0';
-            
+
             if ($maintenanceVolunteer === '1') {
-                return response()->view('system.maintenance', [
-                    'title' => 'Volunteer Maintenance',
-                    'message' => 'Volunteer access is under maintenance. Please try again later.'
-                ], 503);
+                return response('
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Volunteer Maintenance</title>
+                        <meta http-equiv="refresh" content="60">
+                    </head>
+                    <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f3f4f6;">
+                        <h1 style="color: #374151; margin-bottom: 20px;">Volunteer Maintenance</h1>
+                        <p style="color: #6b7280;">Volunteer access is under maintenance. Please try again later.</p>
+                    </body>
+                    </html>
+                ', 503);
             }
             return $next($request);
         }
@@ -64,12 +85,21 @@ class RoleMaintenanceMiddleware
         $maintenanceUser = DB::table('system_settings')
             ->where('key', 'maintenance_user')
             ->value('value') ?? '0';
-        
+
         if ($maintenanceUser === '1') {
-            return response()->view('system.maintenance', [
-                'title' => 'Maintenance',
-                'message' => 'The application is under maintenance. Please try again later.'
-            ], 503);
+            return response('
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Maintenance</title>
+                    <meta http-equiv="refresh" content="60">
+                </head>
+                <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f3f4f6;">
+                    <h1 style="color: #374151; margin-bottom: 20px;">Maintenance</h1>
+                    <p style="color: #6b7280;">The application is under maintenance. Please try again later.</p>
+                </body>
+                </html>
+            ', 503);
         }
 
         return $next($request);
