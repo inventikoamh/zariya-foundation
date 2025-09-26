@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::view('/', 'welcome');
 
+// Deployment route (temporary - remove after deployment)
+Route::get('/deploy', function () {
+    $secret_key = 'your-secret-deployment-key-2024'; // Change this to match deploy.php
+    $requested_key = request('key', '');
+
+    if ($requested_key !== $secret_key) {
+        return response('Access denied. Please provide correct key parameter.', 403);
+    }
+
+    return redirect('/deploy.php?key=' . $secret_key);
+})->name('deploy');
+
 // Help pages (publicly accessible)
 Route::prefix('help')->name('help.')->group(function () {
     Route::view('/', 'help.index')->name('index');
