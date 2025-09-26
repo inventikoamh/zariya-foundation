@@ -54,6 +54,9 @@ Route::prefix('system')->name('system.')->group(function () {
         Route::get('/profile-livewire', \App\Livewire\Profile\SystemProfile::class)->name('profile.livewire');
         Route::get('/help', [\App\Http\Controllers\HelpController::class, 'system'])->name('help');
 
+        // System Logs
+        Route::get('/logs', \App\Livewire\System\SystemLogs::class)->name('logs');
+
         // System settings
         Route::get('/settings/general', [\App\Http\Controllers\System\SettingsController::class, 'general'])->name('settings.general');
         Route::post('/settings/general', [\App\Http\Controllers\System\SettingsController::class, 'saveGeneral'])->name('settings.general.save');
@@ -170,9 +173,6 @@ Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('adm
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'admin'])->name('profile');
     Route::get('/profile-livewire', \App\Livewire\Profile\AdminProfile::class)->name('profile.livewire');
     Route::get('/help', [\App\Http\Controllers\HelpController::class, 'admin'])->name('help');
-
-    // System Logs
-    Route::get('/logs', \App\Livewire\Admin\SystemLogs::class)->name('logs');
 
     // User Management routes
     Route::get('/users', \App\Livewire\Admin\Users\UsersIndex::class)->name('users.index');

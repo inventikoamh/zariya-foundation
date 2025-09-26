@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin;
+namespace App\Livewire\System;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 
-#[Layout('layouts.admin')]
+#[Layout('layouts.system')]
 class SystemLogs extends Component
 {
     use WithPagination;
@@ -170,8 +170,8 @@ class SystemLogs extends Component
         $entries = $this->getLogEntriesProperty();
         $stats = [
             'total' => $entries->count(),
-            'error' => $entries->filter(fn($entry) => str_contains($entry, '.ERROR:'))->count(),
-            'warning' => $entries->filter(fn($entry) => str_contains($entry, '.WARNING:'))->count(),
+            'error' => $entries->filter(fn($entry) => str_contains($entry, '.ERROR:') || str_contains($entry, '.CRITICAL:') || str_contains($entry, '.EMERGENCY:'))->count(),
+            'warning' => $entries->filter(fn($entry) => str_contains($entry, '.WARNING:') || str_contains($entry, '.ALERT:'))->count(),
             'info' => $entries->filter(fn($entry) => str_contains($entry, '.INFO:'))->count(),
         ];
 
@@ -225,7 +225,7 @@ class SystemLogs extends Component
 
     public function render()
     {
-        return view('livewire.admin.system-logs', [
+        return view('livewire.system.system-logs', [
             'logEntries' => $this->getPaginatedLogEntriesProperty(),
             'availableLogFiles' => $this->getAvailableLogFilesProperty(),
             'logLevels' => $this->getLogLevelsProperty(),
