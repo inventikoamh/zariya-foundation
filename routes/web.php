@@ -23,11 +23,15 @@ Route::get('/deploy', function () {
 
 // Help pages (publicly accessible)
 Route::prefix('help')->name('help.')->group(function () {
-    Route::view('/', 'help.index')->name('index');
-    Route::view('/general', 'help.general')->name('general');
-    Route::view('/volunteer', 'help.volunteer')->name('volunteer');
-    Route::view('/admin', 'help.admin')->name('admin');
-    Route::view('/system', 'help.system')->name('system');
+    Route::get('/', [\App\Http\Controllers\HelpController::class, 'index'])->name('index');
+    Route::get('/general', [\App\Http\Controllers\HelpController::class, 'general'])->name('general');
+
+    // Role-specific help pages (require authentication)
+    Route::middleware(['auth', 'role.maintenance', 'role.redirect'])->group(function () {
+        Route::get('/volunteer', [\App\Http\Controllers\HelpController::class, 'volunteer'])->name('volunteer');
+        Route::get('/admin', [\App\Http\Controllers\HelpController::class, 'admin'])->name('admin');
+        Route::get('/system', [\App\Http\Controllers\HelpController::class, 'system'])->name('system');
+    });
 });
 
 // System user auth routes
@@ -139,7 +143,7 @@ Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('fin
 Route::middleware(['auth', 'role.maintenance', 'role.redirect'])->group(function () {
     Route::get('/dashboard', \App\Livewire\Dashboard\UserDashboard::class)->name('dashboard');
 
-    Route::get('/profile', \App\Livewire\Profile\Profile::class)->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
 
     // My donations route for regular users
     Route::get('/my-donations', \App\Livewire\Donations\MyDonations::class)->name('my-donations');
