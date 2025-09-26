@@ -71,7 +71,7 @@ class VolunteerDashboard extends Component
         $this->recentActivities = collect([
             // Recent assignments
             VolunteerAssignment::where('volunteer_id', $volunteerId)
-                ->with(['donation.donor', 'beneficiary.user'])
+                ->with(['donation.donor', 'beneficiary.requestedBy'])
                 ->latest()
                 ->take(5)
                 ->get()
@@ -79,7 +79,7 @@ class VolunteerDashboard extends Component
                     $type = $assignment->donation ? 'donation' : 'beneficiary';
                     $name = $assignment->donation ?
                         $assignment->donation->donor->name :
-                        $assignment->beneficiary->user->name;
+                        ($assignment->beneficiary->requestedBy ? $assignment->beneficiary->requestedBy->name : $assignment->beneficiary->name);
 
                     return [
                         'type' => $type,
@@ -139,7 +139,7 @@ class VolunteerDashboard extends Component
         $volunteerId = auth()->id();
 
         $this->myAssignments = VolunteerAssignment::where('volunteer_id', $volunteerId)
-            ->with(['donation.donor', 'beneficiary.user'])
+            ->with(['donation.donor', 'beneficiary.requestedBy'])
             ->latest()
             ->take(5)
             ->get()
@@ -157,7 +157,7 @@ class VolunteerDashboard extends Component
                     return [
                         'id' => $assignment->beneficiary->id,
                         'type' => 'beneficiary',
-                        'title' => "Request from {$assignment->beneficiary->user->name}",
+                        'title' => "Request from " . ($assignment->beneficiary->requestedBy ? $assignment->beneficiary->requestedBy->name : $assignment->beneficiary->name),
                         'status' => $assignment->beneficiary->status,
                         'is_urgent' => $assignment->beneficiary->is_urgent,
                         'created_at' => $assignment->created_at,

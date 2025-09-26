@@ -61,10 +61,10 @@ class AdminDashboard extends Component
                 ];
             }),
             // Recent beneficiaries
-            Beneficiary::with('user')->latest()->take(3)->get()->map(function($beneficiary) {
+            Beneficiary::with('requestedBy')->latest()->take(3)->get()->map(function($beneficiary) {
                 return [
                     'type' => 'beneficiary',
-                    'message' => "New assistance request from {$beneficiary->user->name}",
+                    'message' => "New assistance request from " . ($beneficiary->requestedBy ? $beneficiary->requestedBy->name : $beneficiary->name),
                     'time' => $beneficiary->created_at,
                     'icon' => 'M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
                     'color' => 'blue'
