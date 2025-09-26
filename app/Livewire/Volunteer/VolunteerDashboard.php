@@ -32,34 +32,22 @@ class VolunteerDashboard extends Component
         $volunteerId = auth()->id();
 
         $this->stats = [
-            'assignedDonations' => VolunteerAssignment::where('volunteer_id', $volunteerId)
-                ->whereHas('donation')
+            'assignedDonations' => Donation::where('assigned_to', $volunteerId)->count(),
+            'completedDonations' => Donation::where('assigned_to', $volunteerId)
+                ->where('status', 'completed')
                 ->count(),
-            'completedDonations' => VolunteerAssignment::where('volunteer_id', $volunteerId)
-                ->whereHas('donation', function($q) {
-                    $q->where('status', 'completed');
-                })
+            'inProgressDonations' => Donation::where('assigned_to', $volunteerId)
+                ->whereIn('status', ['in_progress', 'processing'])
                 ->count(),
-            'inProgressDonations' => VolunteerAssignment::where('volunteer_id', $volunteerId)
-                ->whereHas('donation', function($q) {
-                    $q->whereIn('status', ['in_progress', 'processing']);
-                })
+            'pendingDonations' => Donation::where('assigned_to', $volunteerId)
+                ->where('status', 'pending')
                 ->count(),
-            'pendingDonations' => VolunteerAssignment::where('volunteer_id', $volunteerId)
-                ->whereHas('donation', function($q) {
-                    $q->where('status', 'pending');
-                })
+            'urgentAssignments' => Donation::where('assigned_to', $volunteerId)
+                ->where('is_urgent', true)
                 ->count(),
-            'urgentAssignments' => VolunteerAssignment::where('volunteer_id', $volunteerId)
-                ->whereHas('donation', function($q) {
-                    $q->where('is_urgent', true);
-                })
-                ->count(),
-            'thisMonthCompleted' => VolunteerAssignment::where('volunteer_id', $volunteerId)
-                ->whereHas('donation', function($q) {
-                    $q->where('status', 'completed')
-                      ->whereMonth('updated_at', Carbon::now()->month);
-                })
+            'thisMonthCompleted' => Donation::where('assigned_to', $volunteerId)
+                ->where('status', 'completed')
+                ->whereMonth('updated_at', Carbon::now()->month)
                 ->count(),
         ];
     }
@@ -69,26 +57,34 @@ class VolunteerDashboard extends Component
         $volunteerId = auth()->id();
 
         $this->recentActivities = collect([
-            // Recent assignments
-            VolunteerAssignment::where('volunteer_id', $volunteerId)
-                ->with(['donation.donor', 'beneficiary.requestedBy'])
+            // Recent donations assigned to volunteer
+            Donation::where('assigned_to', $volunteerId)
+                ->with(['donor'])
                 ->latest()
                 ->take(5)
                 ->get()
-                ->map(function($assignment) {
-                    $type = $assignment->donation ? 'donation' : 'beneficiary';
-                    $name = $assignment->donation ?
-                        $assignment->donation->donor->name :
-                        ($assignment->beneficiary->requestedBy ? $assignment->beneficiary->requestedBy->name : $assignment->beneficiary->name);
-
+                ->map(function($donation) {
                     return [
-                        'type' => $type,
-                        'message' => "Assigned to handle {$type} from {$name}",
-                        'time' => $assignment->created_at,
-                        'icon' => $type === 'donation' ?
-                            'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1' :
-                            'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
-                        'color' => $type === 'donation' ? 'green' : 'blue'
+                        'type' => 'donation',
+                        'message' => "Assigned to handle donation from {$donation->donor->name}",
+                        'time' => $donation->assigned_at ?? $donation->created_at,
+                        'icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1',
+                        'color' => 'green'
+                    ];
+                }),
+            // Recent beneficiaries assigned to volunteer
+            Beneficiary::where('assigned_to', $volunteerId)
+                ->with(['requestedBy'])
+                ->latest()
+                ->take(3)
+                ->get()
+                ->map(function($beneficiary) {
+                    return [
+                        'type' => 'beneficiary',
+                        'message' => "Assigned to handle request from " . ($beneficiary->requestedBy ? $beneficiary->requestedBy->name : $beneficiary->name),
+                        'time' => $beneficiary->created_at,
+                        'icon' => 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+                        'color' => 'blue'
                     ];
                 }),
             // Recent remarks by volunteer
@@ -113,14 +109,12 @@ class VolunteerDashboard extends Component
     {
         $volunteerId = auth()->id();
 
-        $this->myDonations = VolunteerAssignment::where('volunteer_id', $volunteerId)
-            ->whereHas('donation')
-            ->with(['donation.donor', 'donation.status'])
+        $this->myDonations = Donation::where('assigned_to', $volunteerId)
+            ->with(['donor'])
             ->latest()
             ->take(5)
             ->get()
-            ->map(function($assignment) {
-                $donation = $assignment->donation;
+            ->map(function($donation) {
                 return [
                     'id' => $donation->id,
                     'type' => $donation->type,
@@ -129,7 +123,7 @@ class VolunteerDashboard extends Component
                     'status' => $donation->status,
                     'is_urgent' => $donation->is_urgent,
                     'created_at' => $donation->created_at,
-                    'assigned_at' => $assignment->created_at,
+                    'assigned_at' => $donation->assigned_at,
                 ];
             });
     }
@@ -138,32 +132,40 @@ class VolunteerDashboard extends Component
     {
         $volunteerId = auth()->id();
 
-        $this->myAssignments = VolunteerAssignment::where('volunteer_id', $volunteerId)
-            ->with(['donation.donor', 'beneficiary.requestedBy'])
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(function($assignment) {
-                if ($assignment->donation) {
+        $this->myAssignments = collect([
+            // Donations assigned to volunteer
+            Donation::where('assigned_to', $volunteerId)
+                ->with(['donor'])
+                ->latest()
+                ->take(3)
+                ->get()
+                ->map(function($donation) {
                     return [
-                        'id' => $assignment->donation->id,
+                        'id' => $donation->id,
                         'type' => 'donation',
-                        'title' => "Donation from {$assignment->donation->donor->name}",
-                        'status' => $assignment->donation->status,
-                        'is_urgent' => $assignment->donation->is_urgent,
-                        'created_at' => $assignment->created_at,
+                        'title' => "Donation from {$donation->donor->name}",
+                        'status' => $donation->status,
+                        'is_urgent' => $donation->is_urgent,
+                        'created_at' => $donation->assigned_at ?? $donation->created_at,
                     ];
-                } else {
+                }),
+            // Beneficiaries assigned to volunteer
+            Beneficiary::where('assigned_to', $volunteerId)
+                ->with(['requestedBy'])
+                ->latest()
+                ->take(2)
+                ->get()
+                ->map(function($beneficiary) {
                     return [
-                        'id' => $assignment->beneficiary->id,
+                        'id' => $beneficiary->id,
                         'type' => 'beneficiary',
-                        'title' => "Request from " . ($assignment->beneficiary->requestedBy ? $assignment->beneficiary->requestedBy->name : $assignment->beneficiary->name),
-                        'status' => $assignment->beneficiary->status,
-                        'is_urgent' => $assignment->beneficiary->is_urgent,
-                        'created_at' => $assignment->created_at,
+                        'title' => "Request from " . ($beneficiary->requestedBy ? $beneficiary->requestedBy->name : $beneficiary->name),
+                        'status' => $beneficiary->status,
+                        'is_urgent' => $beneficiary->is_urgent,
+                        'created_at' => $beneficiary->created_at,
                     ];
-                }
-            });
+                })
+        ])->flatten(1)->sortByDesc('created_at')->take(5)->values();
     }
 
     public function render()
