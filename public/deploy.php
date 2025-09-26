@@ -88,17 +88,36 @@ function commandExists($command) {
                         'output' => []
                     ];
 
-                    // Step 2: Check if we're in the right directory
+                    // Step 2: Check if we're in the right directory and find Laravel root
                     $current_dir = getcwd();
-                    $laravel_check = file_exists('artisan') && file_exists('composer.json');
+                    $laravel_root = $current_dir;
+                    
+                    // If we're in public directory, go up one level to find Laravel root
+                    if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
+                        $laravel_root = dirname($current_dir);
+                    }
+                    
+                    // Check if Laravel files exist in the root directory
+                    $artisan_path = $laravel_root . '/artisan';
+                    $composer_path = $laravel_root . '/composer.json';
+                    $laravel_check = file_exists($artisan_path) && file_exists($composer_path);
+                    
                     $results[] = [
                         'title' => 'Laravel Project Check',
                         'status' => $laravel_check ? 'success' : 'error',
-                        'message' => $laravel_check ? '✅ Laravel project detected' : '❌ Not a Laravel project directory',
-                        'output' => ["Current directory: $current_dir"]
+                        'message' => $laravel_check ? '✅ Laravel project detected' : '❌ Laravel project not found',
+                        'output' => [
+                            "Current directory: $current_dir",
+                            "Laravel root: $laravel_root",
+                            "Artisan file: " . (file_exists($artisan_path) ? '✅ Found' : '❌ Missing'),
+                            "Composer file: " . (file_exists($composer_path) ? '✅ Found' : '❌ Missing')
+                        ]
                     ];
 
                     if ($laravel_check) {
+                        // Change to Laravel root directory for all commands
+                        chdir($laravel_root);
+                        
                         // Step 3: Install/Update Composer Dependencies
                         $composer_result = runCommand('composer install --no-dev --optimize-autoloader');
                         $results[] = [
@@ -186,40 +205,91 @@ function commandExists($command) {
                     break;
 
                 case 'migrate_only':
-                    $migrate_result = runCommand('php artisan migrate --force');
-                    $results[] = [
-                        'title' => 'Database Migrations Only',
-                        'status' => $migrate_result['success'] ? 'success' : 'error',
-                        'message' => $migrate_result['success'] ? '✅ Migrations completed' : '❌ Migration failed',
-                        'output' => $migrate_result['output']
-                    ];
+                    // Find Laravel root directory
+                    $current_dir = getcwd();
+                    $laravel_root = $current_dir;
+                    if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
+                        $laravel_root = dirname($current_dir);
+                    }
+                    
+                    if (file_exists($laravel_root . '/artisan')) {
+                        chdir($laravel_root);
+                        $migrate_result = runCommand('php artisan migrate --force');
+                        $results[] = [
+                            'title' => 'Database Migrations Only',
+                            'status' => $migrate_result['success'] ? 'success' : 'error',
+                            'message' => $migrate_result['success'] ? '✅ Migrations completed' : '❌ Migration failed',
+                            'output' => $migrate_result['output']
+                        ];
+                    } else {
+                        $results[] = [
+                            'title' => 'Database Migrations Only',
+                            'status' => 'error',
+                            'message' => '❌ Laravel project not found',
+                            'output' => ['Could not find artisan file in: ' . $laravel_root]
+                        ];
+                    }
                     break;
 
                 case 'storage_link':
-                    $link_result = runCommand('php artisan storage:link');
-                    $results[] = [
-                        'title' => 'Storage Link Only',
-                        'status' => $link_result['success'] ? 'success' : 'warning',
-                        'message' => $link_result['success'] ? '✅ Storage linked' : '⚠️ Link may already exist',
-                        'output' => $link_result['output']
-                    ];
+                    // Find Laravel root directory
+                    $current_dir = getcwd();
+                    $laravel_root = $current_dir;
+                    if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
+                        $laravel_root = dirname($current_dir);
+                    }
+                    
+                    if (file_exists($laravel_root . '/artisan')) {
+                        chdir($laravel_root);
+                        $link_result = runCommand('php artisan storage:link');
+                        $results[] = [
+                            'title' => 'Storage Link Only',
+                            'status' => $link_result['success'] ? 'success' : 'warning',
+                            'message' => $link_result['success'] ? '✅ Storage linked' : '⚠️ Link may already exist',
+                            'output' => $link_result['output']
+                        ];
+                    } else {
+                        $results[] = [
+                            'title' => 'Storage Link Only',
+                            'status' => 'error',
+                            'message' => '❌ Laravel project not found',
+                            'output' => ['Could not find artisan file in: ' . $laravel_root]
+                        ];
+                    }
                     break;
 
                 case 'clear_cache':
-                    $cache_commands = [
-                        'php artisan config:clear',
-                        'php artisan cache:clear',
-                        'php artisan route:clear',
-                        'php artisan view:clear'
-                    ];
-
-                    foreach ($cache_commands as $cmd) {
-                        $result = runCommand($cmd);
+                    // Find Laravel root directory
+                    $current_dir = getcwd();
+                    $laravel_root = $current_dir;
+                    if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
+                        $laravel_root = dirname($current_dir);
+                    }
+                    
+                    if (file_exists($laravel_root . '/artisan')) {
+                        chdir($laravel_root);
+                        $cache_commands = [
+                            'php artisan config:clear',
+                            'php artisan cache:clear',
+                            'php artisan route:clear',
+                            'php artisan view:clear'
+                        ];
+                        
+                        foreach ($cache_commands as $cmd) {
+                            $result = runCommand($cmd);
+                            $results[] = [
+                                'title' => 'Clear: ' . explode(':', $cmd)[1],
+                                'status' => $result['success'] ? 'success' : 'warning',
+                                'message' => $result['success'] ? '✅ Cleared' : '⚠️ Warning',
+                                'output' => $result['output']
+                            ];
+                        }
+                    } else {
                         $results[] = [
-                            'title' => 'Clear: ' . explode(':', $cmd)[1],
-                            'status' => $result['success'] ? 'success' : 'warning',
-                            'message' => $result['success'] ? '✅ Cleared' : '⚠️ Warning',
-                            'output' => $result['output']
+                            'title' => 'Clear Cache',
+                            'status' => 'error',
+                            'message' => '❌ Laravel project not found',
+                            'output' => ['Could not find artisan file in: ' . $laravel_root]
                         ];
                     }
                     break;
@@ -294,11 +364,22 @@ function commandExists($command) {
 
             <div class="step">
                 <h3>📋 System Information</h3>
+                <?php
+                $current_dir = getcwd();
+                $laravel_root = $current_dir;
+                if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
+                    $laravel_root = dirname($current_dir);
+                }
+                $artisan_exists = file_exists($laravel_root . '/artisan');
+                $composer_exists = file_exists($laravel_root . '/composer.json');
+                ?>
                 <p><strong>PHP Version:</strong> <?php echo PHP_VERSION; ?></p>
-                <p><strong>Current Directory:</strong> <?php echo getcwd(); ?></p>
-                <p><strong>Laravel Detected:</strong> <?php echo (file_exists('artisan') && file_exists('composer.json')) ? '✅ Yes' : '❌ No'; ?></p>
+                <p><strong>Current Directory:</strong> <?php echo $current_dir; ?></p>
+                <p><strong>Laravel Root:</strong> <?php echo $laravel_root; ?></p>
+                <p><strong>Laravel Detected:</strong> <?php echo ($artisan_exists && $composer_exists) ? '✅ Yes' : '❌ No'; ?></p>
                 <p><strong>Composer Available:</strong> <?php echo commandExists('composer') ? '✅ Yes' : '❌ No'; ?></p>
-                <p><strong>Artisan Available:</strong> <?php echo file_exists('artisan') ? '✅ Yes' : '❌ No'; ?></p>
+                <p><strong>Artisan Available:</strong> <?php echo $artisan_exists ? '✅ Yes' : '❌ No'; ?></p>
+                <p><strong>Composer.json Available:</strong> <?php echo $composer_exists ? '✅ Yes' : '❌ No'; ?></p>
             </div>
         <?php endif; ?>
     </div>
