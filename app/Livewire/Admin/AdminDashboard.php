@@ -20,6 +20,10 @@ class AdminDashboard extends Component
     public $donationStats = [];
     public $userStats = [];
     public $beneficiaryStats = [];
+    public $statusCharts = [];
+    public $localizationCharts = [];
+    public $timeFilter = 'monthly'; // monthly, yearly
+    public $statusFilter = 'all'; // all, or specific status
 
     public function mount()
     {
@@ -28,6 +32,8 @@ class AdminDashboard extends Component
         $this->loadDonationStats();
         $this->loadUserStats();
         $this->loadBeneficiaryStats();
+        $this->loadStatusCharts();
+        $this->loadLocalizationCharts();
     }
 
     public function loadStats()
@@ -154,6 +160,175 @@ class AdminDashboard extends Component
                 ->pluck('count', 'month')
                 ->toArray(),
         ];
+    }
+
+    public function loadStatusCharts()
+    {
+        $dateFormat = $this->timeFilter === 'yearly' ? '%Y' : '%Y-%m';
+        $dateField = $this->timeFilter === 'yearly' ? 'YEAR(created_at)' : 'DATE_FORMAT(created_at, "%Y-%m")';
+
+        // Donations by status over time
+        $donationQuery = Donation::select(
+            DB::raw($dateField . ' as period'),
+            'status',
+            DB::raw('count(*) as count')
+        )
+        ->where('created_at', '>=', Carbon::now()->subMonths($this->timeFilter === 'yearly' ? 24 : 12))
+        ->groupBy('period', 'status')
+        ->orderBy('period');
+
+        if ($this->statusFilter !== 'all') {
+            $donationQuery->where('status', $this->statusFilter);
+        }
+
+        $donationData = $donationQuery->get()->groupBy('period');
+
+        // Beneficiaries by status over time
+        $beneficiaryQuery = Beneficiary::select(
+            DB::raw($dateField . ' as period'),
+            'status',
+            DB::raw('count(*) as count')
+        )
+        ->where('created_at', '>=', Carbon::now()->subMonths($this->timeFilter === 'yearly' ? 24 : 12))
+        ->groupBy('period', 'status')
+        ->orderBy('period');
+
+        if ($this->statusFilter !== 'all') {
+            $beneficiaryQuery->where('status', $this->statusFilter);
+        }
+
+        $beneficiaryData = $beneficiaryQuery->get()->groupBy('period');
+
+        $this->statusCharts = [
+            'donations' => $donationData,
+            'beneficiaries' => $beneficiaryData,
+            'periods' => $donationData->keys()->merge($beneficiaryData->keys())->unique()->sort()->values(),
+            'donationStatuses' => Donation::distinct()->pluck('status')->filter()->values(),
+            'beneficiaryStatuses' => Beneficiary::distinct()->pluck('status')->filter()->values(),
+        ];
+    }
+
+    public function loadLocalizationCharts()
+    {
+        // Donations by country
+        $donationCountryQuery = Donation::select(
+            'countries.name as country_name',
+            'donations.status',
+            DB::raw('count(*) as count')
+        )
+        ->join('countries', 'donations.country_id', '=', 'countries.id')
+        ->groupBy('countries.name', 'donations.status');
+
+        if ($this->statusFilter !== 'all') {
+            $donationCountryQuery->where('donations.status', $this->statusFilter);
+        }
+
+        $donationCountries = $donationCountryQuery->get()
+            ->groupBy('country_name')
+            ->map(function($items) {
+                return $items->sum('count');
+            })
+            ->filter(function($count) {
+                return $count > 0;
+            })
+            ->sortDesc();
+
+        // Beneficiaries by country
+        $beneficiaryCountryQuery = Beneficiary::select(
+            'countries.name as country_name',
+            'beneficiaries.status',
+            DB::raw('count(*) as count')
+        )
+        ->join('countries', 'beneficiaries.location->country_id', '=', 'countries.id')
+        ->groupBy('countries.name', 'beneficiaries.status');
+
+        if ($this->statusFilter !== 'all') {
+            $beneficiaryCountryQuery->where('beneficiaries.status', $this->statusFilter);
+        }
+
+        $beneficiaryCountries = $beneficiaryCountryQuery->get()
+            ->groupBy('country_name')
+            ->map(function($items) {
+                return $items->sum('count');
+            })
+            ->filter(function($count) {
+                return $count > 0;
+            })
+            ->sortDesc();
+
+        // Donations by state (top 10)
+        $donationStateQuery = Donation::select(
+            'states.name as state_name',
+            'countries.name as country_name',
+            'donations.status',
+            DB::raw('count(*) as count')
+        )
+        ->join('states', 'donations.state_id', '=', 'states.id')
+        ->join('countries', 'donations.country_id', '=', 'countries.id')
+        ->groupBy('states.name', 'countries.name', 'donations.status');
+
+        if ($this->statusFilter !== 'all') {
+            $donationStateQuery->where('donations.status', $this->statusFilter);
+        }
+
+        $donationStates = $donationStateQuery->get()
+            ->groupBy(function($item) {
+                return $item->state_name . ', ' . $item->country_name;
+            })
+            ->map(function($items) {
+                return $items->sum('count');
+            })
+            ->filter(function($count) {
+                return $count > 0;
+            })
+            ->sortDesc()
+            ->take(10);
+
+        // Beneficiaries by state (top 10)
+        $beneficiaryStateQuery = Beneficiary::select(
+            'states.name as state_name',
+            'countries.name as country_name',
+            'beneficiaries.status',
+            DB::raw('count(*) as count')
+        )
+        ->join('states', 'beneficiaries.location->state_id', '=', 'states.id')
+        ->join('countries', 'beneficiaries.location->country_id', '=', 'countries.id')
+        ->groupBy('states.name', 'countries.name', 'beneficiaries.status');
+
+        if ($this->statusFilter !== 'all') {
+            $beneficiaryStateQuery->where('beneficiaries.status', $this->statusFilter);
+        }
+
+        $beneficiaryStates = $beneficiaryStateQuery->get()
+            ->groupBy(function($item) {
+                return $item->state_name . ', ' . $item->country_name;
+            })
+            ->map(function($items) {
+                return $items->sum('count');
+            })
+            ->filter(function($count) {
+                return $count > 0;
+            })
+            ->sortDesc()
+            ->take(10);
+
+        $this->localizationCharts = [
+            'donationCountries' => $donationCountries,
+            'beneficiaryCountries' => $beneficiaryCountries,
+            'donationStates' => $donationStates,
+            'beneficiaryStates' => $beneficiaryStates,
+        ];
+    }
+
+    public function updatedTimeFilter()
+    {
+        $this->loadStatusCharts();
+    }
+
+    public function updatedStatusFilter()
+    {
+        $this->loadStatusCharts();
+        $this->loadLocalizationCharts();
     }
 
     public function render()

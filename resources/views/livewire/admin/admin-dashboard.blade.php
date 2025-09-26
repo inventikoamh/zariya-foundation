@@ -163,7 +163,175 @@
         </div>
     </div>
 
-    <!-- Charts and Analytics -->
+    <!-- Chart Filters -->
+    <div class="bg-white shadow rounded-lg p-6 mb-8">
+        <div class="flex flex-wrap gap-4">
+            <div>
+                <label for="timeFilter" class="block text-sm font-medium text-gray-700 mb-2">Time Period</label>
+                <select wire:model.live="timeFilter" id="timeFilter" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div>
+                <label for="statusFilter" class="block text-sm font-medium text-gray-700 mb-2">Status Filter</label>
+                <select wire:model.live="statusFilter" id="statusFilter" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="all">All Statuses</option>
+                    @foreach($statusCharts['donationStatuses'] as $status)
+                        <option value="{{ $status }}">{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
+                    @endforeach
+                    @foreach($statusCharts['beneficiaryStatuses'] as $status)
+                        @if(!in_array($status, $statusCharts['donationStatuses']->toArray()))
+                            <option value="{{ $status }}">{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
+                        @endif
+                    @endforeach
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status-based Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Donations by Status Over Time -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Donations by Status ({{ ucfirst($timeFilter) }})</h3>
+            <div class="space-y-4">
+                @foreach($statusCharts['periods'] as $period)
+                    <div class="border-l-4 border-indigo-400 pl-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-900">{{ $period }}</span>
+                            <span class="text-xs text-gray-500">{{ $timeFilter === 'monthly' ? 'Month' : 'Year' }}</span>
+                        </div>
+                        <div class="space-y-2">
+                            @if(isset($statusCharts['donations'][$period]))
+                                @foreach($statusCharts['donations'][$period] as $statusData)
+                                    <div class="flex items-center justify-between text-sm">
+                                        <div class="flex items-center">
+                                            <div class="w-2 h-2 rounded-full mr-2 {{ $statusData->status === 'completed' ? 'bg-green-500' : ($statusData->status === 'pending' ? 'bg-yellow-500' : ($statusData->status === 'in_progress' ? 'bg-blue-500' : 'bg-gray-500')) }}"></div>
+                                            <span class="text-gray-600">{{ ucfirst(str_replace('_', ' ', $statusData->status)) }}</span>
+                                        </div>
+                                        <span class="font-medium text-gray-900">{{ number_format($statusData->count) }}</span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <p class="text-sm text-gray-500">No data for this period</p>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Beneficiaries by Status Over Time -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Beneficiaries by Status ({{ ucfirst($timeFilter) }})</h3>
+            <div class="space-y-4">
+                @foreach($statusCharts['periods'] as $period)
+                    <div class="border-l-4 border-purple-400 pl-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-medium text-gray-900">{{ $period }}</span>
+                            <span class="text-xs text-gray-500">{{ $timeFilter === 'monthly' ? 'Month' : 'Year' }}</span>
+                        </div>
+                        <div class="space-y-2">
+                            @if(isset($statusCharts['beneficiaries'][$period]))
+                                @foreach($statusCharts['beneficiaries'][$period] as $statusData)
+                                    <div class="flex items-center justify-between text-sm">
+                                        <div class="flex items-center">
+                                            <div class="w-2 h-2 rounded-full mr-2 {{ $statusData->status === 'fulfilled' ? 'bg-green-500' : ($statusData->status === 'pending' ? 'bg-yellow-500' : ($statusData->status === 'approved' ? 'bg-blue-500' : 'bg-gray-500')) }}"></div>
+                                            <span class="text-gray-600">{{ ucfirst(str_replace('_', ' ', $statusData->status)) }}</span>
+                                        </div>
+                                        <span class="font-medium text-gray-900">{{ number_format($statusData->count) }}</span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <p class="text-sm text-gray-500">No data for this period</p>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    <!-- Localization Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Donations by Country -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Donations by Country</h3>
+            <div class="space-y-3">
+                @forelse($localizationCharts['donationCountries'] as $country => $count)
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-3 bg-green-500"></div>
+                            <span class="text-sm font-medium text-gray-700">{{ $country }}</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">{{ number_format($count) }}</span>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No donation data available</p>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Beneficiaries by Country -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Beneficiaries by Country</h3>
+            <div class="space-y-3">
+                @forelse($localizationCharts['beneficiaryCountries'] as $country => $count)
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-3 bg-purple-500"></div>
+                            <span class="text-sm font-medium text-gray-700">{{ $country }}</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">{{ number_format($count) }}</span>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No beneficiary data available</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
+    <!-- State-level Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Top States - Donations -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Top States - Donations</h3>
+            <div class="space-y-3">
+                @forelse($localizationCharts['donationStates'] as $state => $count)
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-3 bg-blue-500"></div>
+                            <span class="text-sm font-medium text-gray-700">{{ $state }}</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">{{ number_format($count) }}</span>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No state data available</p>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Top States - Beneficiaries -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Top States - Beneficiaries</h3>
+            <div class="space-y-3">
+                @forelse($localizationCharts['beneficiaryStates'] as $state => $count)
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 rounded-full mr-3 bg-orange-500"></div>
+                            <span class="text-sm font-medium text-gray-700">{{ $state }}</span>
+                        </div>
+                        <span class="text-sm font-semibold text-gray-900">{{ number_format($count) }}</span>
+                    </div>
+                @empty
+                    <p class="text-sm text-gray-500">No state data available</p>
+                @endforelse
+            </div>
+        </div>
+    </div>
+
+    <!-- Basic Analytics -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <!-- Donations by Type Chart -->
         <div class="bg-white shadow rounded-lg p-6">
