@@ -59,7 +59,7 @@
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Test User Credentials</h2>
                         <p class="text-gray-600 mb-6">Use these credentials to test different user roles in the CRM system:</p>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-2">
                             <!-- Super Admin User -->
                             <div class="bg-red-50 p-4 rounded-lg border border-red-200">
                                 <h3 class="font-semibold text-red-800 mb-2">Super Admin User</h3>
