@@ -189,4 +189,12 @@ class User extends Authenticatable
     {
         return $this->achievements()->where('achievement_id', $achievementId)->exists();
     }
+
+    /**
+     * Get the morph class for this model.
+     */
+    public function getMorphClass()
+    {
+        return 'user';
+    }
 }

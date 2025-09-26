@@ -430,4 +430,12 @@ class Donation extends Model
 
         return false;
     }
+
+    /**
+     * Get the morph class for this model.
+     */
+    public function getMorphClass()
+    {
+        return 'donation';
+    }
 }

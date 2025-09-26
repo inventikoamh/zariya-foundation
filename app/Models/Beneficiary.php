@@ -167,4 +167,12 @@ class Beneficiary extends Model
             self::STATUS_FULFILLED => 'Fulfilled',
         ];
     }
+
+    /**
+     * Get the morph class for this model.
+     */
+    public function getMorphClass()
+    {
+        return 'beneficiary';
+    }
 }
