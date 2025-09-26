@@ -167,7 +167,7 @@ Route::middleware(['auth', 'role.maintenance', 'role.redirect'])->group(function
 
 // Admin routes
 Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', \App\Livewire\Admin\AdminDashboard::class)->name('dashboard');
 
     // Profile and Help routes
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'admin'])->name('profile');
@@ -225,7 +225,7 @@ Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('adm
 
 // Volunteer routes
 Route::middleware(['auth', 'role:VOLUNTEER', 'role.maintenance'])->prefix('volunteer')->name('volunteer.')->group(function () {
-    Route::get('/dashboard', [VolunteerController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', \App\Livewire\Volunteer\VolunteerDashboard::class)->name('dashboard');
 
     // Profile and Help routes
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'volunteer'])->name('profile');
