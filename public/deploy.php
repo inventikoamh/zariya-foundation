@@ -91,17 +91,17 @@ function commandExists($command) {
                     // Step 2: Check if we're in the right directory and find Laravel root
                     $current_dir = getcwd();
                     $laravel_root = $current_dir;
-                    
+
                     // If we're in public directory, go up one level to find Laravel root
                     if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
                         $laravel_root = dirname($current_dir);
                     }
-                    
+
                     // Check if Laravel files exist in the root directory
                     $artisan_path = $laravel_root . '/artisan';
                     $composer_path = $laravel_root . '/composer.json';
                     $laravel_check = file_exists($artisan_path) && file_exists($composer_path);
-                    
+
                     $results[] = [
                         'title' => 'Laravel Project Check',
                         'status' => $laravel_check ? 'success' : 'error',
@@ -117,7 +117,7 @@ function commandExists($command) {
                     if ($laravel_check) {
                         // Change to Laravel root directory for all commands
                         chdir($laravel_root);
-                        
+
                         // Step 3: Install/Update Composer Dependencies
                         $composer_result = runCommand('composer install --no-dev --optimize-autoloader');
                         $results[] = [
@@ -211,7 +211,7 @@ function commandExists($command) {
                     if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
                         $laravel_root = dirname($current_dir);
                     }
-                    
+
                     if (file_exists($laravel_root . '/artisan')) {
                         chdir($laravel_root);
                         $migrate_result = runCommand('php artisan migrate --force');
@@ -238,7 +238,7 @@ function commandExists($command) {
                     if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
                         $laravel_root = dirname($current_dir);
                     }
-                    
+
                     if (file_exists($laravel_root . '/artisan')) {
                         chdir($laravel_root);
                         $link_result = runCommand('php artisan storage:link');
@@ -265,7 +265,7 @@ function commandExists($command) {
                     if (basename($current_dir) === 'public' || strpos($current_dir, '/public') !== false) {
                         $laravel_root = dirname($current_dir);
                     }
-                    
+
                     if (file_exists($laravel_root . '/artisan')) {
                         chdir($laravel_root);
                         $cache_commands = [
@@ -274,7 +274,7 @@ function commandExists($command) {
                             'php artisan route:clear',
                             'php artisan view:clear'
                         ];
-                        
+
                         foreach ($cache_commands as $cmd) {
                             $result = runCommand($cmd);
                             $results[] = [

@@ -93,29 +93,8 @@
                                 </div>
                             </div>
 
-                            <!-- System Admin -->
-                            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                                <h3 class="font-semibold text-purple-800 mb-2">System Admin</h3>
-                                <div class="text-sm text-gray-700">
-                                    <p><strong>Email:</strong> admin@foundationcrm.com</p>
-                                    <p><strong>Password:</strong> password</p>
-                                    <p class="text-purple-600 font-medium">System management</p>
-                                </div>
-                            </div>
                         </div>
 
-                        <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <h4 class="font-semibold text-yellow-800 mb-2">Additional Test Users:</h4>
-                            <div class="text-sm text-gray-700 grid grid-cols-1 md:grid-cols-2 gap-2">
-                                <p><strong>Normal Users:</strong> sarah@example.com, lisa@example.com, jennifer@example.com</p>
-                                <p><strong>Volunteers:</strong> emily@example.com, robert@example.com</p>
-                                <p><strong>All passwords:</strong> password</p>
-                                <p><strong>Phone format:</strong> +91-987654321X (where X is 0-7)</p>
-                            </div>
-                            <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded">
-                                <p class="text-sm text-blue-800"><strong>Note:</strong> David (david@example.com) has SUPER_ADMIN role and can access admin panel, finance management, and all system features. Normal users can both donate and request assistance.</p>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Features Section -->
