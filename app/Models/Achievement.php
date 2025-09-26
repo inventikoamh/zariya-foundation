@@ -188,4 +188,12 @@ class Achievement extends Model
         // to calculate progress towards this achievement
         return 0;
     }
+
+    /**
+     * Get the morph class for this model.
+     */
+    public function getMorphClass()
+    {
+        return 'achievement';
+    }
 }

@@ -99,4 +99,12 @@ class UserAchievement extends Model
         $metadata[$key] = $value;
         $this->update(['metadata' => $metadata]);
     }
+
+    /**
+     * Get the morph class for this model.
+     */
+    public function getMorphClass()
+    {
+        return 'user_achievement';
+    }
 }

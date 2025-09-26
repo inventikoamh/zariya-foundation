@@ -117,4 +117,12 @@ class Remark extends Model
     {
         return $query->where('created_at', '>=', now()->subDays($days));
     }
+
+    /**
+     * Get the morph class for this model.
+     */
+    public function getMorphClass()
+    {
+        return 'remark';
+    }
 }

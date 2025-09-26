@@ -85,4 +85,12 @@ class VolunteerAssignment extends Model
             default => 'Unknown',
         };
     }
+
+    /**
+     * Get the morph class for this model.
+     */
+    public function getMorphClass()
+    {
+        return 'volunteer_assignment';
+    }
 }
