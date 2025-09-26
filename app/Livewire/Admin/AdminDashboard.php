@@ -203,8 +203,8 @@ class AdminDashboard extends Component
             'donations' => $donationData,
             'beneficiaries' => $beneficiaryData,
             'periods' => $donationData->keys()->merge($beneficiaryData->keys())->unique()->sort()->values(),
-            'donationStatuses' => Donation::distinct()->pluck('status')->filter()->values(),
-            'beneficiaryStatuses' => Beneficiary::distinct()->pluck('status')->filter()->values(),
+            'donationStatuses' => Donation::distinct()->pluck('status')->filter()->values()->toArray(),
+            'beneficiaryStatuses' => Beneficiary::distinct()->pluck('status')->filter()->values()->toArray(),
         ];
     }
 
@@ -239,7 +239,7 @@ class AdminDashboard extends Component
             'beneficiaries.status',
             DB::raw('count(*) as count')
         )
-        ->join('countries', 'beneficiaries.location->country_id', '=', 'countries.id')
+        ->join('countries', DB::raw('JSON_UNQUOTE(JSON_EXTRACT(beneficiaries.location, "$.country_id"))'), '=', 'countries.id')
         ->groupBy('countries.name', 'beneficiaries.status');
 
         if ($this->statusFilter !== 'all') {
@@ -291,8 +291,8 @@ class AdminDashboard extends Component
             'beneficiaries.status',
             DB::raw('count(*) as count')
         )
-        ->join('states', 'beneficiaries.location->state_id', '=', 'states.id')
-        ->join('countries', 'beneficiaries.location->country_id', '=', 'countries.id')
+        ->join('states', DB::raw('JSON_UNQUOTE(JSON_EXTRACT(beneficiaries.location, "$.state_id"))'), '=', 'states.id')
+        ->join('countries', DB::raw('JSON_UNQUOTE(JSON_EXTRACT(beneficiaries.location, "$.country_id"))'), '=', 'countries.id')
         ->groupBy('states.name', 'countries.name', 'beneficiaries.status');
 
         if ($this->statusFilter !== 'all') {

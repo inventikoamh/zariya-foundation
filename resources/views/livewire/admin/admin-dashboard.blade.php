@@ -181,7 +181,7 @@
                         <option value="{{ $status }}">{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
                     @endforeach
                     @foreach($statusCharts['beneficiaryStatuses'] as $status)
-                        @if(!in_array($status, $statusCharts['donationStatuses']->toArray()))
+                        @if(!in_array($status, $statusCharts['donationStatuses']))
                             <option value="{{ $status }}">{{ ucfirst(str_replace('_', ' ', $status)) }}</option>
                         @endif
                     @endforeach
