@@ -282,7 +282,13 @@ class DonationShow extends Component
     {
         $this->donation->load(['donor', 'assignedTo', 'assignedBy', 'country', 'state', 'city', 'remarks.user']);
 
-        $volunteers = User::role('VOLUNTEER')
+        $volunteers = User::whereIn('id', function($query) {
+                $query->select('model_has_roles.model_id')
+                    ->from('model_has_roles')
+                    ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                    ->where('model_has_roles.model_type', 'App\\Models\\User')
+                    ->where('roles.name', 'VOLUNTEER');
+            })
             ->whereNotNull('first_name')
             ->where('first_name', '!=', '')
             ->orderBy('first_name')

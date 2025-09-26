@@ -43,9 +43,11 @@ class AdminDashboard extends Component
             'totalDonations' => Donation::count(),
             'totalBeneficiaries' => Beneficiary::count(),
             'pendingRequests' => Beneficiary::where('status', 'pending')->count(),
-            'activeVolunteers' => User::whereHas('roles', function($q) {
-                $q->where('name', 'VOLUNTEER');
-            })->count(),
+            'activeVolunteers' => DB::table('model_has_roles')
+                ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+                ->where('model_has_roles.model_type', 'App\\Models\\User')
+                ->where('roles.name', 'VOLUNTEER')
+                ->count(),
             'totalAmount' => Donation::where('type', 'monetary')->get()->sum('amount') ?? 0,
             'completedDonations' => Donation::where('status', 'completed')->count(),
             'urgentItems' => Donation::where('is_urgent', true)->count() +
@@ -77,7 +79,7 @@ class AdminDashboard extends Component
                 ];
             }),
             // Recent remarks
-            Remark::with(['remarkable', 'user'])->latest()->take(3)->get()->map(function($remark) {
+            Remark::with('user')->latest()->take(3)->get()->map(function($remark) {
                 return [
                     'type' => 'remark',
                     'message' => "New {$remark->type_label} remark added",

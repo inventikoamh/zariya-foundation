@@ -11,9 +11,6 @@ class RoleMaintenanceMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        // Temporarily disable maintenance checks to isolate the getMorphClass error
-        return $next($request);
-
         // Never block system guard users
         if (auth('system')->check()) {
             return $next($request);
@@ -38,7 +35,7 @@ class RoleMaintenanceMiddleware
             $maintenanceAdmin = DB::table('system_settings')
                 ->where('key', 'maintenance_admin')
                 ->value('value') ?? '0';
-
+            
             if ($maintenanceAdmin === '1') {
                 return response('
                     <!DOCTYPE html>
@@ -62,7 +59,7 @@ class RoleMaintenanceMiddleware
             $maintenanceVolunteer = DB::table('system_settings')
                 ->where('key', 'maintenance_volunteer')
                 ->value('value') ?? '0';
-
+            
             if ($maintenanceVolunteer === '1') {
                 return response('
                     <!DOCTYPE html>
@@ -85,7 +82,7 @@ class RoleMaintenanceMiddleware
         $maintenanceUser = DB::table('system_settings')
             ->where('key', 'maintenance_user')
             ->value('value') ?? '0';
-
+        
         if ($maintenanceUser === '1') {
             return response('
                 <!DOCTYPE html>
