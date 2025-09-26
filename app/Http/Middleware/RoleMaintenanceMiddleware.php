@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\SystemSetting;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,7 +32,11 @@ class RoleMaintenanceMiddleware
 
         // Admins
         if (in_array('SUPER_ADMIN', $userRoles)) {
-            if (SystemSetting::get('maintenance_admin', '0') === '1') {
+            $maintenanceAdmin = DB::table('system_settings')
+                ->where('key', 'maintenance_admin')
+                ->value('value') ?? '0';
+            
+            if ($maintenanceAdmin === '1') {
                 return response()->view('system.maintenance', [
                     'title' => 'Admin Maintenance',
                     'message' => 'The admin panel is under maintenance. Please try again later.'
@@ -44,7 +47,11 @@ class RoleMaintenanceMiddleware
 
         // Volunteers
         if (in_array('VOLUNTEER', $userRoles)) {
-            if (SystemSetting::get('maintenance_volunteer', '0') === '1') {
+            $maintenanceVolunteer = DB::table('system_settings')
+                ->where('key', 'maintenance_volunteer')
+                ->value('value') ?? '0';
+            
+            if ($maintenanceVolunteer === '1') {
                 return response()->view('system.maintenance', [
                     'title' => 'Volunteer Maintenance',
                     'message' => 'Volunteer access is under maintenance. Please try again later.'
@@ -54,7 +61,11 @@ class RoleMaintenanceMiddleware
         }
 
         // General users
-        if (SystemSetting::get('maintenance_user', '0') === '1') {
+        $maintenanceUser = DB::table('system_settings')
+            ->where('key', 'maintenance_user')
+            ->value('value') ?? '0';
+        
+        if ($maintenanceUser === '1') {
             return response()->view('system.maintenance', [
                 'title' => 'Maintenance',
                 'message' => 'The application is under maintenance. Please try again later.'

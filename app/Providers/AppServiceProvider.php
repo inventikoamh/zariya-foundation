@@ -33,6 +33,7 @@ class AppServiceProvider extends ServiceProvider
             'achievement' => \App\Models\Achievement::class,
             'user_achievement' => \App\Models\UserAchievement::class,
             'volunteer_assignment' => \App\Models\VolunteerAssignment::class,
+            'system_setting' => \App\Models\SystemSetting::class,
         ]);
     }
 }

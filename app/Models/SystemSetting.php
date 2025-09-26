@@ -37,6 +37,14 @@ class SystemSetting extends Model
             default => $value,
         };
     }
+
+    /**
+     * Get the morph class for this model.
+     */
+    public function getMorphClass()
+    {
+        return 'system_setting';
+    }
 }
 
 
