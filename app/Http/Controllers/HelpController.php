@@ -19,11 +19,11 @@ class HelpController extends Controller
             $user = Auth::user();
 
             if ($user->hasRole('SUPER_ADMIN')) {
-                return redirect()->route('help.admin');
+                return redirect()->route('admin.help');
             } elseif ($user->hasRole('VOLUNTEER')) {
-                return redirect()->route('help.volunteer');
+                return redirect()->route('volunteer.help');
             } elseif ($user->hasRole('SYSTEM')) {
-                return redirect()->route('help.system');
+                return redirect()->route('system.help');
             }
         }
 

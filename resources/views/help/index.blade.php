@@ -7,15 +7,15 @@
                 <h2 class="text-xl font-semibold">General User Guide</h2>
                 <p class="text-sm text-gray-600 mt-1">Donations, requests, profile, achievements.</p>
             </a>
-            <a href="{{ route('help.volunteer') }}" class="block p-5 border rounded hover:bg-gray-50">
+            <a href="{{ route('volunteer.help') }}" class="block p-5 border rounded hover:bg-gray-50">
                 <h2 class="text-xl font-semibold">Volunteer Guide</h2>
                 <p class="text-sm text-gray-600 mt-1">Assignments, donation handling, remarks, personal donations.</p>
             </a>
-            <a href="{{ route('help.admin') }}" class="block p-5 border rounded hover:bg-gray-50">
+            <a href="{{ route('admin.help') }}" class="block p-5 border rounded hover:bg-gray-50">
                 <h2 class="text-xl font-semibold">Admin Guide</h2>
                 <p class="text-sm text-gray-600 mt-1">Users, localization, status, finance, donations, achievements.</p>
             </a>
-            <a href="{{ route('help.system') }}" class="block p-5 border rounded hover:bg-gray-50">
+            <a href="{{ route('system.help') }}" class="block p-5 border rounded hover:bg-gray-50">
                 <h2 class="text-xl font-semibold">System Guide</h2>
                 <p class="text-sm text-gray-600 mt-1">System login, settings, SMTP, frontpage, env, cron.</p>
             </a>
