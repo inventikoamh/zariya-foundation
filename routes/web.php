@@ -140,7 +140,7 @@ Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('fin
 Route::middleware(['auth', 'role.maintenance', 'role.redirect'])->group(function () {
     Route::get('/dashboard', \App\Livewire\Dashboard\UserDashboard::class)->name('dashboard');
 
-    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'user'])->name('profile');
 
     // My donations route for regular users
     Route::get('/my-donations', \App\Livewire\Donations\MyDonations::class)->name('my-donations');
