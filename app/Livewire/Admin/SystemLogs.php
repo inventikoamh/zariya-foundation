@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Layout;
 use Illuminate\Support\Facades\File;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 
 #[Layout('layouts.admin')]
@@ -25,6 +26,11 @@ class SystemLogs extends Component
         'dateFilter' => ['except' => ''],
         'selectedLogFile' => ['except' => 'laravel.log'],
     ];
+
+    public function getPage()
+    {
+        return request()->get('page', 1);
+    }
 
     public function updatingSearch()
     {
@@ -128,8 +134,21 @@ class SystemLogs extends Component
     public function getPaginatedLogEntriesProperty()
     {
         $entries = $this->getLogEntriesProperty();
-        $offset = ($this->page - 1) * $this->perPage;
-        return $entries->slice($offset, $this->perPage);
+        $currentPage = $this->getPage();
+        $offset = ($currentPage - 1) * $this->perPage;
+        $paginatedEntries = $entries->slice($offset, $this->perPage);
+
+        // Create a custom paginator
+        return new LengthAwarePaginator(
+            $paginatedEntries,
+            $entries->count(),
+            $this->perPage,
+            $currentPage,
+            [
+                'path' => request()->url(),
+                'pageName' => 'page',
+            ]
+        );
     }
 
     public function getLogLevelsProperty()

@@ -151,7 +151,7 @@
 
                 <!-- Pagination -->
                 <div class="mt-6">
-                    {{ $logEntries->links() }}
+                    {{ $logEntries->appends(request()->query())->links() }}
                 </div>
             @else
                 <div class="text-center py-12">
