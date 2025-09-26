@@ -25,21 +25,21 @@ class ProfileController extends Controller
 
     public function admin()
     {
-        return view('profile.admin');
+        return redirect()->route('admin.profile.livewire');
     }
 
     public function volunteer()
     {
-        return view('profile.volunteer');
+        return redirect()->route('volunteer.profile.livewire');
     }
 
     public function system()
     {
-        return view('profile.system');
+        return redirect()->route('system.profile.livewire');
     }
 
     public function user()
     {
-        return view('profile.user');
+        return redirect()->route('profile.livewire');
     }
 }

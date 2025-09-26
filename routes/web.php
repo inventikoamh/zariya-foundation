@@ -51,6 +51,7 @@ Route::prefix('system')->name('system.')->group(function () {
 
         // Profile and Help routes
         Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'system'])->name('profile');
+        Route::get('/profile-livewire', \App\Livewire\Profile\SystemProfile::class)->name('profile.livewire');
         Route::get('/help', [\App\Http\Controllers\HelpController::class, 'system'])->name('help');
 
         // System settings
@@ -141,6 +142,7 @@ Route::middleware(['auth', 'role.maintenance', 'role.redirect'])->group(function
     Route::get('/dashboard', \App\Livewire\Dashboard\UserDashboard::class)->name('dashboard');
 
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'user'])->name('profile');
+    Route::get('/profile-livewire', \App\Livewire\Profile\UserProfile::class)->name('profile.livewire');
 
     // My donations route for regular users
     Route::get('/my-donations', \App\Livewire\Donations\MyDonations::class)->name('my-donations');
@@ -166,6 +168,7 @@ Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('adm
 
     // Profile and Help routes
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'admin'])->name('profile');
+    Route::get('/profile-livewire', \App\Livewire\Profile\AdminProfile::class)->name('profile.livewire');
     Route::get('/help', [\App\Http\Controllers\HelpController::class, 'admin'])->name('help');
 
     // User Management routes
@@ -225,6 +228,7 @@ Route::middleware(['auth', 'role:VOLUNTEER', 'role.maintenance'])->prefix('volun
 
     // Profile and Help routes
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'volunteer'])->name('profile');
+    Route::get('/profile-livewire', \App\Livewire\Profile\VolunteerProfile::class)->name('profile.livewire');
     Route::get('/help', [\App\Http\Controllers\HelpController::class, 'volunteer'])->name('help');
 
     // Volunteer Donation Management routes
