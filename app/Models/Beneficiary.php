@@ -21,6 +21,7 @@ class Beneficiary extends Model
         'urgency_notes',
         'status',
         'priority',
+        'is_urgent',
         'estimated_amount',
         'currency',
         'location',
@@ -37,6 +38,7 @@ class Beneficiary extends Model
         'additional_info' => 'array',
         'estimated_amount' => 'decimal:2',
         'reviewed_at' => 'datetime',
+        'is_urgent' => 'boolean',
     ];
 
     // Status constants

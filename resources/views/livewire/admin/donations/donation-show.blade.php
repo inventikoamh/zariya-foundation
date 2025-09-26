@@ -335,6 +335,36 @@
 
         <!-- Sidebar -->
         <div class="space-y-6">
+            <!-- Priority and Urgent Controls -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Priority & Urgency</h3>
+                </div>
+                <div class="px-6 py-4 space-y-4">
+                    <!-- Priority Control -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Priority Level</label>
+                        <select wire:model="priority" wire:change="updatePriority" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="{{ \App\Models\Donation::PRIORITY_LOW }}">Low</option>
+                            <option value="{{ \App\Models\Donation::PRIORITY_MEDIUM }}">Medium</option>
+                            <option value="{{ \App\Models\Donation::PRIORITY_HIGH }}">High</option>
+                            <option value="{{ \App\Models\Donation::PRIORITY_CRITICAL }}">Critical</option>
+                        </select>
+                    </div>
+
+                    <!-- Urgent Status Control -->
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" wire:model="isUrgent" wire:change="updateUrgentStatus" class="rounded border-gray-300 text-red-600 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm font-medium text-gray-700">Mark as Urgent</span>
+                        </label>
+                        @if($donation->is_urgent)
+                            <p class="mt-1 text-xs text-red-600">⚠️ This donation is marked as urgent</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
             <!-- Quick Actions -->
             <x-quick-actions :donation="$donation" :canModify="true" />
 

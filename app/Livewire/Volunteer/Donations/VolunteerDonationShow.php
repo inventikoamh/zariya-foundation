@@ -27,6 +27,10 @@ class VolunteerDonationShow extends Component
     public $convertedAmount = null;
     public $convertedCurrency = '';
 
+    // Priority and urgent controls
+    public $priority = '';
+    public $isUrgent = false;
+
     public function mount(Donation $donation)
     {
         // Allow volunteers to view any donation, but restrict modifications to assigned donations only
@@ -43,6 +47,8 @@ class VolunteerDonationShow extends Component
 
         // Initialize form fields
         $this->newStatus = $donation->status;
+        $this->priority = $donation->priority ?? Donation::PRIORITY_MEDIUM;
+        $this->isUrgent = $donation->is_urgent ?? false;
     }
 
     public function getCanModifyProperty()
@@ -334,6 +340,74 @@ class VolunteerDonationShow extends Component
                 }
             }
         }
+    }
+
+    public function updatePriority()
+    {
+        if (!$this->canModify) {
+            session()->flash('error', 'You can only update priority for donations assigned to you.');
+            return;
+        }
+
+        $this->validate([
+            'priority' => 'required|in:' . implode(',', [
+                Donation::PRIORITY_LOW,
+                Donation::PRIORITY_MEDIUM,
+                Donation::PRIORITY_HIGH,
+                Donation::PRIORITY_CRITICAL
+            ]),
+        ]);
+
+        $oldPriority = $this->donation->priority;
+        $this->donation->update(['priority' => $this->priority]);
+
+        // Add priority update remark
+        $this->donation->remarks()->create([
+            'user_id' => auth()->id(),
+            'type' => 'priority_change',
+            'remark' => "Priority changed from {$this->getPriorityLabel($oldPriority)} to {$this->getPriorityLabel($this->priority)}",
+            'metadata' => [
+                'old_priority' => $oldPriority,
+                'new_priority' => $this->priority,
+            ],
+        ]);
+
+        session()->flash('success', 'Priority updated successfully.');
+    }
+
+    public function updateUrgentStatus()
+    {
+        if (!$this->canModify) {
+            session()->flash('error', 'You can only update urgent status for donations assigned to you.');
+            return;
+        }
+
+        $oldUrgentStatus = $this->donation->is_urgent;
+        $this->donation->update(['is_urgent' => $this->isUrgent]);
+
+        // Add urgent status update remark
+        $this->donation->remarks()->create([
+            'user_id' => auth()->id(),
+            'type' => 'urgent_change',
+            'remark' => "Urgent status changed from " . ($oldUrgentStatus ? 'Yes' : 'No') . " to " . ($this->isUrgent ? 'Yes' : 'No'),
+            'metadata' => [
+                'old_urgent' => $oldUrgentStatus,
+                'new_urgent' => $this->isUrgent,
+            ],
+        ]);
+
+        session()->flash('success', 'Urgent status updated successfully.');
+    }
+
+    private function getPriorityLabel($priority)
+    {
+        return match($priority) {
+            Donation::PRIORITY_LOW => 'Low',
+            Donation::PRIORITY_MEDIUM => 'Medium',
+            Donation::PRIORITY_HIGH => 'High',
+            Donation::PRIORITY_CRITICAL => 'Critical',
+            default => 'Unknown',
+        };
     }
 
     public function render()

@@ -21,6 +21,7 @@ class BeneficiaryShow extends Component
     public $isInternal = false;
     public $statusRemark = '';
     public $assignmentNote = '';
+    public $isUrgent = false;
 
     public function mount(Beneficiary $beneficiary)
     {
@@ -28,6 +29,7 @@ class BeneficiaryShow extends Component
         $this->status = $beneficiary->status;
         $this->priority = $beneficiary->priority;
         $this->assignedTo = $beneficiary->assigned_to;
+        $this->isUrgent = $beneficiary->is_urgent ?? false;
     }
 
     public function updateStatus()
@@ -81,6 +83,27 @@ class BeneficiaryShow extends Component
         ]);
 
         session()->flash('success', 'Priority updated successfully.');
+    }
+
+    public function updateUrgentStatus()
+    {
+        $oldUrgentStatus = $this->beneficiary->is_urgent ?? false;
+        $this->beneficiary->update(['is_urgent' => $this->isUrgent]);
+
+        // Add urgent status update remark
+        Remark::create([
+            'remarkable_type' => Beneficiary::class,
+            'remarkable_id' => $this->beneficiary->id,
+            'user_id' => auth()->id(),
+            'remark' => "Urgent status changed from " . ($oldUrgentStatus ? 'Yes' : 'No') . " to " . ($this->isUrgent ? 'Yes' : 'No'),
+            'type' => 'urgent_change',
+            'metadata' => [
+                'old_urgent' => $oldUrgentStatus,
+                'new_urgent' => $this->isUrgent,
+            ],
+        ]);
+
+        session()->flash('success', 'Urgent status updated successfully.');
     }
 
     public function assignToVolunteer()
