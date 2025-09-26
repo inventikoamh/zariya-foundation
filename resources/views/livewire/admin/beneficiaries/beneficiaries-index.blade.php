@@ -67,6 +67,10 @@
                             @endforeach
                         </select>
                     </div>
+                    <label class="flex items-center">
+                        <input type="checkbox" wire:model.live="isUrgentFilter" value="1" class="mr-2">
+                        <span class="text-sm text-gray-700">Urgent Only</span>
+                    </label>
                 </div>
                 <button wire:click="clearFilters" class="text-sm text-gray-500 hover:text-gray-700">
                     Clear All Filters
@@ -233,7 +237,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($beneficiaries as $beneficiary)
-                        <tr class="hover:bg-gray-50 {{ $beneficiary->priority === 'urgent' ? 'bg-red-50' : '' }}">
+                        <tr class="hover:bg-gray-50 {{ $beneficiary->is_urgent ? 'bg-red-50' : '' }}">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 h-10 w-10">
@@ -244,8 +248,18 @@
                                         </div>
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ ucfirst($beneficiary->category) }}
+                                        <div class="flex items-center space-x-2">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ ucfirst($beneficiary->category) }}
+                                            </div>
+                                            @if($beneficiary->is_urgent)
+                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    URGENT
+                                                </span>
+                                            @endif
                                         </div>
                                         <div class="text-sm text-gray-500">
                                             {{ Str::limit($beneficiary->description, 30) }}

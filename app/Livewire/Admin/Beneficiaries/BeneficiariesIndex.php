@@ -18,6 +18,7 @@ class BeneficiariesIndex extends Component
     public $priorityFilter = '';
     public $categoryFilter = '';
     public $assignedToFilter = '';
+    public $isUrgentFilter = '';
     public $perPage = 10;
 
     protected $queryString = [
@@ -26,6 +27,7 @@ class BeneficiariesIndex extends Component
         'priorityFilter' => ['except' => ''],
         'categoryFilter' => ['except' => ''],
         'assignedToFilter' => ['except' => ''],
+        'isUrgentFilter' => ['except' => ''],
     ];
 
     public function updatingSearch()
@@ -60,6 +62,7 @@ class BeneficiariesIndex extends Component
         $this->priorityFilter = '';
         $this->categoryFilter = '';
         $this->assignedToFilter = '';
+        $this->isUrgentFilter = '';
         $this->resetPage();
     }
 
@@ -86,6 +89,9 @@ class BeneficiariesIndex extends Component
             })
             ->when($this->assignedToFilter, function ($query) {
                 $query->where('assigned_to', $this->assignedToFilter);
+            })
+            ->when($this->isUrgentFilter, function ($query) {
+                $query->where('is_urgent', true);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($this->perPage);

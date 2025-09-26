@@ -21,6 +21,7 @@ class VolunteerDonations extends Component
     public $statusFilter = '';
     public $typeFilter = '';
     public $priorityFilter = '';
+    public $isUrgentFilter = '';
 
     // Status update modal properties
     public $showStatusModal = false;
@@ -335,6 +336,11 @@ class VolunteerDonations extends Component
         // Apply priority filter
         if ($this->priorityFilter) {
             $query->where('priority', $this->priorityFilter);
+        }
+
+        // Apply urgent filter
+        if ($this->isUrgentFilter) {
+            $query->where('is_urgent', true);
         }
 
         $donations = $query->orderBy('created_at', 'desc')->paginate(10);

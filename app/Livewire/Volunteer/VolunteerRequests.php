@@ -18,6 +18,7 @@ class VolunteerRequests extends Component
     public $statusFilter = '';
     public $categoryFilter = '';
     public $priorityFilter = '';
+    public $isUrgentFilter = '';
 
     // Remark modal properties
     public $showRemarkModal = false;
@@ -31,6 +32,7 @@ class VolunteerRequests extends Component
         'statusFilter' => ['except' => ''],
         'categoryFilter' => ['except' => ''],
         'priorityFilter' => ['except' => ''],
+        'isUrgentFilter' => ['except' => ''],
     ];
 
     public function updatingSearch()
@@ -150,6 +152,11 @@ class VolunteerRequests extends Component
         // Apply priority filter
         if ($this->priorityFilter) {
             $query->where('priority', $this->priorityFilter);
+        }
+
+        // Apply urgent filter
+        if ($this->isUrgentFilter) {
+            $query->where('is_urgent', true);
         }
 
         $requests = $query->orderBy('created_at', 'desc')->paginate(10);
