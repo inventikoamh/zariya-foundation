@@ -453,10 +453,6 @@
         </div>
     </div>
 
-    <!-- Donation History -->
-    <div class="mt-6">
-        <livewire:admin.donation-history :beneficiary="$beneficiary" />
-    </div>
 
     <!-- Remarks -->
     <div class="mt-6">

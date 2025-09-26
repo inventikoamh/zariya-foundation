@@ -171,6 +171,9 @@ Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('adm
     Route::get('/profile-livewire', \App\Livewire\Profile\AdminProfile::class)->name('profile.livewire');
     Route::get('/help', [\App\Http\Controllers\HelpController::class, 'admin'])->name('help');
 
+    // System Logs
+    Route::get('/logs', \App\Livewire\Admin\SystemLogs::class)->name('logs');
+
     // User Management routes
     Route::get('/users', \App\Livewire\Admin\Users\UsersIndex::class)->name('users.index');
     Route::get('/users/create', \App\Livewire\Admin\Users\UserCreate::class)->name('users.create');
@@ -207,8 +210,6 @@ Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('adm
     Route::get('/donations/create', \App\Livewire\Admin\Donations\DonationCreate::class)->name('donations.create');
     Route::get('/donations/{donation}', \App\Livewire\Admin\Donations\DonationShow::class)->name('donations.show');
     Route::get('/donations/{donation}/edit', \App\Livewire\Admin\Donations\DonationEdit::class)->name('donations.edit');
-    Route::get('/donation-history', \App\Livewire\Admin\DonationHistoryIndex::class)->name('donation-history.index');
-    Route::get('/donation-history/{beneficiary}', \App\Livewire\Admin\DonationHistory::class)->name('donation-history.show');
     Route::get('/service-donations', \App\Livewire\Admin\ServiceDonationsIndex::class)->name('service-donations.index');
 
     // Beneficiaries Management routes
