@@ -22,4 +22,24 @@ class ProfileController extends Controller
             return view('profile.user');
         }
     }
+
+    public function admin()
+    {
+        return view('profile.admin');
+    }
+
+    public function volunteer()
+    {
+        return view('profile.volunteer');
+    }
+
+    public function system()
+    {
+        return view('profile.system');
+    }
+
+    public function user()
+    {
+        return view('profile.user');
+    }
 }

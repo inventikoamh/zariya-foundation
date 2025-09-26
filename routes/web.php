@@ -25,13 +25,6 @@ Route::get('/deploy', function () {
 Route::prefix('help')->name('help.')->group(function () {
     Route::get('/', [\App\Http\Controllers\HelpController::class, 'index'])->name('index');
     Route::get('/general', [\App\Http\Controllers\HelpController::class, 'general'])->name('general');
-
-    // Role-specific help pages (require authentication)
-    Route::middleware(['auth', 'role.maintenance', 'role.redirect'])->group(function () {
-        Route::get('/volunteer', [\App\Http\Controllers\HelpController::class, 'volunteer'])->name('volunteer');
-        Route::get('/admin', [\App\Http\Controllers\HelpController::class, 'admin'])->name('admin');
-        Route::get('/system', [\App\Http\Controllers\HelpController::class, 'system'])->name('system');
-    });
 });
 
 // System user auth routes
@@ -55,6 +48,10 @@ Route::prefix('system')->name('system.')->group(function () {
         Route::get('/dashboard', function () {
             return view('system.dashboard');
         })->name('dashboard');
+
+        // Profile and Help routes
+        Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'system'])->name('profile');
+        Route::get('/help', [\App\Http\Controllers\HelpController::class, 'system'])->name('help');
 
         // System settings
         Route::get('/settings/general', [\App\Http\Controllers\System\SettingsController::class, 'general'])->name('settings.general');
@@ -167,6 +164,10 @@ Route::middleware(['auth', 'role.maintenance', 'role.redirect'])->group(function
 Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
+    // Profile and Help routes
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'admin'])->name('profile');
+    Route::get('/help', [\App\Http\Controllers\HelpController::class, 'admin'])->name('help');
+
     // User Management routes
     Route::get('/users', \App\Livewire\Admin\Users\UsersIndex::class)->name('users.index');
     Route::get('/users/create', \App\Livewire\Admin\Users\UserCreate::class)->name('users.create');
@@ -221,6 +222,10 @@ Route::middleware(['auth', 'role:SUPER_ADMIN', 'role.maintenance'])->prefix('adm
 // Volunteer routes
 Route::middleware(['auth', 'role:VOLUNTEER', 'role.maintenance'])->prefix('volunteer')->name('volunteer.')->group(function () {
     Route::get('/dashboard', [VolunteerController::class, 'index'])->name('dashboard');
+
+    // Profile and Help routes
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'volunteer'])->name('profile');
+    Route::get('/help', [\App\Http\Controllers\HelpController::class, 'volunteer'])->name('help');
 
     // Volunteer Donation Management routes
     Route::get('/donations', \App\Livewire\Volunteer\Donations\VolunteerDonations::class)->name('donations.index');
