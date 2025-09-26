@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\SystemSetting;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class RoleMaintenanceMiddleware
@@ -22,8 +23,16 @@ class RoleMaintenanceMiddleware
 
         $user = auth()->user();
 
+        // Check roles using direct database query to avoid getMorphClass errors
+        $userRoles = \DB::table('model_has_roles')
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->where('model_has_roles.model_id', $user->id)
+            ->where('model_has_roles.model_type', 'App\\Models\\User')
+            ->pluck('roles.name')
+            ->toArray();
+
         // Admins
-        if ($user->hasRole('SUPER_ADMIN')) {
+        if (in_array('SUPER_ADMIN', $userRoles)) {
             if (SystemSetting::get('maintenance_admin', '0') === '1') {
                 return response()->view('system.maintenance', [
                     'title' => 'Admin Maintenance',
@@ -34,7 +43,7 @@ class RoleMaintenanceMiddleware
         }
 
         // Volunteers
-        if ($user->hasRole('VOLUNTEER')) {
+        if (in_array('VOLUNTEER', $userRoles)) {
             if (SystemSetting::get('maintenance_volunteer', '0') === '1') {
                 return response()->view('system.maintenance', [
                     'title' => 'Volunteer Maintenance',

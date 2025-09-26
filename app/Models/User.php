@@ -189,4 +189,13 @@ class User extends Authenticatable
     {
         return $this->achievements()->where('achievement_id', $achievementId)->exists();
     }
+
+    /**
+     * Get the morph class for this model.
+     * This is required for Spatie permissions to work properly.
+     */
+    public function getMorphClass()
+    {
+        return 'App\\Models\\User';
+    }
 }
