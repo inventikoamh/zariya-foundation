@@ -24,10 +24,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register route middleware alias
         app('router')->aliasMiddleware('role.maintenance', RoleMaintenanceMiddleware::class);
-        
-        // Define morph maps for Livewire compatibility
+
+        // Define morph maps for Livewire compatibility (excluding User to avoid Spatie permissions conflicts)
         Relation::morphMap([
-            'user' => \App\Models\User::class,
             'donation' => \App\Models\Donation::class,
             'beneficiary' => \App\Models\Beneficiary::class,
             'remark' => \App\Models\Remark::class,
