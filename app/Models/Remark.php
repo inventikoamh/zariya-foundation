@@ -33,6 +33,8 @@ class Remark extends Model
     const TYPE_COMPLETION = 'completion';
     const TYPE_CANCELLATION = 'cancellation';
     const TYPE_GENERAL = 'general';
+    const TYPE_PRIORITY_CHANGE = 'priority_change';
+    const TYPE_URGENT_CHANGE = 'urgent_change';
 
     /**
      * Get the parent remarkable model (donation, beneficiary, etc.)
@@ -62,6 +64,8 @@ class Remark extends Model
             self::TYPE_COMPLETION => 'Completion',
             self::TYPE_CANCELLATION => 'Cancellation',
             self::TYPE_GENERAL => 'General',
+            self::TYPE_PRIORITY_CHANGE => 'Priority Change',
+            self::TYPE_URGENT_CHANGE => 'Urgent Status Change',
             default => 'Unknown',
         };
     }

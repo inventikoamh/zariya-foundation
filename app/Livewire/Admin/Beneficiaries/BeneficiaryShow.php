@@ -73,13 +73,14 @@ class BeneficiaryShow extends Component
             'priority' => $this->priority,
         ]);
 
-        // Add remark about priority change
+        // Add remark about priority change (internal)
         Remark::create([
             'remarkable_type' => Beneficiary::class,
             'remarkable_id' => $this->beneficiary->id,
             'user_id' => auth()->id(),
             'remark' => "Priority changed to: " . $this->beneficiary->getPriorityOptions()[$this->priority],
             'type' => 'priority_change',
+            'is_internal' => true,
         ]);
 
         session()->flash('success', 'Priority updated successfully.');
@@ -90,13 +91,14 @@ class BeneficiaryShow extends Component
         $oldUrgentStatus = $this->beneficiary->is_urgent ?? false;
         $this->beneficiary->update(['is_urgent' => $this->isUrgent]);
 
-        // Add urgent status update remark
+        // Add urgent status update remark (internal)
         Remark::create([
             'remarkable_type' => Beneficiary::class,
             'remarkable_id' => $this->beneficiary->id,
             'user_id' => auth()->id(),
             'remark' => "Urgent status changed from " . ($oldUrgentStatus ? 'Yes' : 'No') . " to " . ($this->isUrgent ? 'Yes' : 'No'),
             'type' => 'urgent_change',
+            'is_internal' => true,
             'metadata' => [
                 'old_urgent' => $oldUrgentStatus,
                 'new_urgent' => $this->isUrgent,
@@ -182,7 +184,7 @@ class BeneficiaryShow extends Component
     {
         $this->validate([
             'newRemark' => 'required|string|max:1000',
-            'remarkType' => 'required|in:general,status_update,progress,assignment',
+            'remarkType' => 'required|in:general,status_update,progress,assignment,priority_change,urgent_change',
         ]);
 
         Remark::create([

@@ -48,7 +48,7 @@ class DonationShow extends Component
     {
         $this->validate([
             'newRemark' => 'required|string|max:1000',
-            'remarkType' => 'required|in:status_update,assignment,progress,completion,cancellation,general',
+            'remarkType' => 'required|in:status_update,assignment,progress,completion,cancellation,general,priority_change,urgent_change',
         ]);
 
         $this->donation->remarks()->create([
@@ -232,11 +232,12 @@ class DonationShow extends Component
         $oldPriority = $this->donation->priority;
         $this->donation->update(['priority' => $this->priority]);
 
-        // Add priority update remark
+        // Add priority update remark (internal)
         $this->donation->remarks()->create([
             'user_id' => auth()->id(),
             'type' => 'priority_change',
             'remark' => "Priority changed from {$this->getPriorityLabel($oldPriority)} to {$this->getPriorityLabel($this->priority)}",
+            'is_internal' => true,
             'metadata' => [
                 'old_priority' => $oldPriority,
                 'new_priority' => $this->priority,
@@ -251,11 +252,12 @@ class DonationShow extends Component
         $oldUrgentStatus = $this->donation->is_urgent;
         $this->donation->update(['is_urgent' => $this->isUrgent]);
 
-        // Add urgent status update remark
+        // Add urgent status update remark (internal)
         $this->donation->remarks()->create([
             'user_id' => auth()->id(),
             'type' => 'urgent_change',
             'remark' => "Urgent status changed from " . ($oldUrgentStatus ? 'Yes' : 'No') . " to " . ($this->isUrgent ? 'Yes' : 'No'),
+            'is_internal' => true,
             'metadata' => [
                 'old_urgent' => $oldUrgentStatus,
                 'new_urgent' => $this->isUrgent,
