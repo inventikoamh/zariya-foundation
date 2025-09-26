@@ -40,7 +40,7 @@ class AdminDashboard extends Component
             'activeVolunteers' => User::whereHas('roles', function($q) {
                 $q->where('name', 'VOLUNTEER');
             })->count(),
-            'totalAmount' => Donation::where('type', 'monetary')->sum('amount') ?? 0,
+            'totalAmount' => Donation::where('type', 'monetary')->get()->sum('amount') ?? 0,
             'completedDonations' => Donation::where('status', 'completed')->count(),
             'urgentItems' => Donation::where('is_urgent', true)->count() +
                            Beneficiary::where('is_urgent', true)->count(),
@@ -104,14 +104,14 @@ class AdminDashboard extends Component
                 ->pluck('count', 'month')
                 ->toArray(),
             'amountByMonth' => Donation::where('type', 'monetary')
-                ->select(
-                    DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
-                    DB::raw('SUM(amount) as total')
-                )
                 ->where('created_at', '>=', Carbon::now()->subMonths(6))
-                ->groupBy('month')
-                ->orderBy('month')
-                ->pluck('total', 'month')
+                ->get()
+                ->groupBy(function($donation) {
+                    return $donation->created_at->format('Y-m');
+                })
+                ->map(function($donations) {
+                    return $donations->sum('amount');
+                })
                 ->toArray(),
         ];
     }
