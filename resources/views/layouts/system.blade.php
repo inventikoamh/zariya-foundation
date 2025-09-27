@@ -23,10 +23,11 @@
                 <x-system-admin-navigation />
             </x-mobile-sidebar>
 
-            <!-- Sidebar -->
+            <!-- Desktop Sidebar -->
             <div class="hidden md:flex md:w-64 md:flex-col">
-                <div class="flex flex-col flex-grow pt-5 bg-white overflow-y-auto border-r border-gray-200">
-                    <div class="flex items-center flex-shrink-0 px-4">
+                <div class="flex flex-col h-full bg-white border-r border-gray-200">
+                    <!-- Header section (fixed at top) -->
+                    <div class="flex-shrink-0 flex items-center px-4 pt-5 pb-4 border-b border-gray-200">
                         <div class="flex items-center space-x-2">
                             @php($logo = \App\Models\SystemSetting::get('crm_logo'))
                             @if($logo)
@@ -35,21 +36,38 @@
                             <h1 class="text-xl font-bold text-gray-900">System Admin</h1>
                         </div>
                     </div>
-                    <div class="mt-5 flex-grow flex flex-col">
-                        <x-system-admin-navigation />
+
+                    <!-- Navigation section (scrollable middle) -->
+                    <div class="flex-1 overflow-y-auto">
+                        <nav class="px-2 py-4 space-y-1">
+                            <x-system-admin-navigation />
+                        </nav>
                     </div>
-                    <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
-                        <div class="flex-shrink-0 w-full group block">
-                            <div class="flex items-center justify-between">
-                                <div>
+
+                    <!-- Footer section (fixed at bottom) -->
+                    <div class="flex-shrink-0 border-t border-gray-200 bg-white">
+                        <!-- User info -->
+                        <div class="p-4">
+                            <div class="flex items-center">
+                                <div class="flex-1">
                                     <div class="text-sm font-medium text-gray-700">{{ auth('system')->user()->name ?? 'System' }}</div>
                                     <div class="text-xs text-gray-500">{{ auth('system')->user()->email ?? '' }}</div>
                                 </div>
-                                <form method="POST" action="{{ route('system.logout') }}">
-                                    @csrf
-                                    <button class="text-xs text-gray-600 hover:text-gray-900">Logout</button>
-                                </form>
                             </div>
+                        </div>
+
+                        <!-- Logout button -->
+                        <div class="px-4 pb-4">
+                            <form method="POST" action="{{ route('system.logout') }}">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
