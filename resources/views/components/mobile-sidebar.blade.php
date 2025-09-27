@@ -21,7 +21,7 @@
      x-transition:leave="transition ease-in-out duration-300 transform"
      x-transition:leave-start="translate-x-0"
      x-transition:leave-end="-translate-x-full"
-     class="relative flex-1 flex flex-col max-w-xs w-full bg-white md:hidden z-50"
+     class="fixed inset-y-0 left-0 flex flex-col max-w-xs w-full bg-white md:hidden z-50"
      style="display: none;">
 
     <!-- Close button -->
@@ -35,35 +35,47 @@
         </button>
     </div>
 
-    <!-- Sidebar content -->
-    <div class="flex-1 h-0 flex flex-col">
-        <!-- Header section (fixed) -->
-        <div class="flex-shrink-0 flex items-center px-4 pt-5">
-            @php($crmLogo = \App\Models\SystemSetting::get('crm_logo'))
-            @if($crmLogo)
-                <img src="{{ Storage::url($crmLogo) }}" alt="Logo" class="h-8 w-auto" />
-            @endif
-            <h1 class="text-xl font-bold text-gray-900 ml-2">{{ \App\Models\SystemSetting::get('crm_name', config('app.name', 'Laravel')) }}</h1>
-        </div>
-
-        <!-- Navigation (scrollable) -->
-        <div class="flex-1 overflow-y-auto">
-            <nav class="mt-5 px-2 space-y-1 pb-4">
-                {{ $slot }}
-            </nav>
-        </div>
+    <!-- Header section (fixed at top) -->
+    <div class="flex-shrink-0 flex items-center px-4 pt-5 pb-4 border-b border-gray-200">
+        @php($crmLogo = \App\Models\SystemSetting::get('crm_logo'))
+        @if($crmLogo)
+            <img src="{{ Storage::url($crmLogo) }}" alt="Logo" class="h-8 w-auto" />
+        @endif
+        <h1 class="text-xl font-bold text-gray-900 ml-2">{{ \App\Models\SystemSetting::get('crm_name', config('app.name', 'Laravel')) }}</h1>
     </div>
 
-    <!-- User info section (sticky at bottom) -->
+    <!-- Navigation section (scrollable middle) -->
+    <div class="flex-1 overflow-y-auto">
+        <nav class="px-2 py-4 space-y-1">
+            {{ $slot }}
+        </nav>
+    </div>
+
+    <!-- Footer section (fixed at bottom) -->
     @if($showUserInfo && Auth::check())
-        <div class="flex-shrink-0 flex border-t border-gray-200 p-4 bg-white">
-            <div class="flex-shrink-0 w-full group block">
+        <div class="flex-shrink-0 border-t border-gray-200 bg-white">
+            <!-- User info -->
+            <div class="p-4">
                 <div class="flex items-center">
-                    <div>
+                    <div class="flex-1">
                         <div class="text-sm font-medium text-gray-700">{{ Auth::user()->name }}</div>
                         <div class="text-xs text-gray-500">{{ Auth::user()->phone_country_code }}{{ Auth::user()->phone }}</div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Logout button -->
+            <div class="px-4 pb-4">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit"
+                            class="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Logout
+                    </button>
+                </form>
             </div>
         </div>
     @endif
