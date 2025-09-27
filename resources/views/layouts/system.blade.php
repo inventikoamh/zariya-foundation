@@ -25,7 +25,7 @@
 
             <!-- Desktop Sidebar -->
             <div class="hidden md:flex md:w-64 md:flex-col">
-                <div class="flex flex-col h-full bg-white border-r border-gray-200">
+                <div class="flex flex-col h-screen bg-white border-r border-gray-200">
                     <!-- Header section (fixed at top) -->
                     <div class="flex-shrink-0 flex items-center px-4 pt-5 pb-4 border-b border-gray-200">
                         <div class="flex items-center space-x-2">
