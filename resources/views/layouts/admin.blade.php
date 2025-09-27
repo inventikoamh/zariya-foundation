@@ -27,7 +27,9 @@
     <body class="font-sans antialiased bg-gray-100" x-data="{ sidebarOpen: false }">
         <div class="min-h-screen flex">
             <!-- Mobile Sidebar Component -->
-            <x-mobile-sidebar :navigation-component="'<x-super-admin-navigation />'" :show-user-info="true" />
+            <x-mobile-sidebar :show-user-info="true">
+                <x-super-admin-navigation />
+            </x-mobile-sidebar>
 
             <!-- Sidebar -->
             <div class="hidden md:flex md:w-64 md:flex-col">

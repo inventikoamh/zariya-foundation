@@ -44,7 +44,9 @@
             <!-- Normal layout with sidebar -->
             <div class="min-h-screen flex" x-data="{ sidebarOpen: false }">
                 <!-- Mobile Sidebar Component -->
-                <x-mobile-sidebar :navigation-component="'<x-general-user-navigation />'" :show-user-info="true" />
+                <x-mobile-sidebar :show-user-info="true">
+                    <x-general-user-navigation />
+                </x-mobile-sidebar>
 
                 <!-- Sidebar -->
                 <div class="hidden md:flex md:w-64 md:flex-col">

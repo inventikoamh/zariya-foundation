@@ -1,4 +1,4 @@
-@props(['navigationComponent', 'showUserInfo' => false])
+@props(['showUserInfo' => false])
 
 <!-- Mobile sidebar overlay -->
 <div x-show="sidebarOpen"
@@ -36,8 +36,9 @@
     </div>
 
     <!-- Sidebar content -->
-    <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-        <div class="flex-shrink-0 flex items-center px-4">
+    <div class="flex-1 h-0 flex flex-col">
+        <!-- Header section (fixed) -->
+        <div class="flex-shrink-0 flex items-center px-4 pt-5">
             @php($crmLogo = \App\Models\SystemSetting::get('crm_logo'))
             @if($crmLogo)
                 <img src="{{ Storage::url($crmLogo) }}" alt="Logo" class="h-8 w-auto" />
@@ -45,15 +46,17 @@
             <h1 class="text-xl font-bold text-gray-900 ml-2">{{ \App\Models\SystemSetting::get('crm_name', config('app.name', 'Laravel')) }}</h1>
         </div>
 
-        <!-- Navigation -->
-        <nav class="mt-5 px-2 space-y-1">
-            {{ $navigationComponent }}
-        </nav>
+        <!-- Navigation (scrollable) -->
+        <div class="flex-1 overflow-y-auto">
+            <nav class="mt-5 px-2 space-y-1 pb-4">
+                {{ $slot }}
+            </nav>
+        </div>
     </div>
 
-    <!-- User info section (optional) -->
+    <!-- User info section (sticky at bottom) -->
     @if($showUserInfo && Auth::check())
-        <div class="flex-shrink-0 flex border-t border-gray-200 p-4">
+        <div class="flex-shrink-0 flex border-t border-gray-200 p-4 bg-white">
             <div class="flex-shrink-0 w-full group block">
                 <div class="flex items-center">
                     <div>

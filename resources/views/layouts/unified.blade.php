@@ -44,7 +44,12 @@
             <!-- Normal layout with sidebar -->
             <div class="min-h-screen flex" x-data="{ sidebarOpen: false }">
                 <!-- Mobile Sidebar Component -->
-                <x-mobile-sidebar :navigation-component="'<x-unified-navigation :user-role=\'$userRole ?? \'user\'\' :dashboard-route=\'$dashboardRoute ?? route(\'dashboard\')\' :dashboard-route-name=\'$dashboardRouteName ?? \'dashboard\'\' />'" :show-user-info="true" />
+                <x-mobile-sidebar :show-user-info="true">
+                    <x-unified-navigation
+                        :userRole="$userRole ?? 'user'"
+                        :dashboardRoute="$dashboardRoute ?? route('dashboard')"
+                        :dashboardRouteName="$dashboardRouteName ?? 'dashboard'" />
+                </x-mobile-sidebar>
 
                 <!-- Sidebar -->
                 <div class="hidden md:flex md:w-64 md:flex-col">
