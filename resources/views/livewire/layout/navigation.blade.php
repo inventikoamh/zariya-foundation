@@ -24,12 +24,12 @@ new class extends Component
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     @auth
-                        <a href="{{ auth()->user()->hasRole('SUPER_ADMIN') ? route('admin.dashboard') : (auth()->user()->hasRole('VOLUNTEER') ? route('volunteer.dashboard') : route('dashboard')) }}" wire:navigate>
-                            <x-application-logo class="block h-8 w-auto fill-current text-gray-800" />
+                        <a href="{{ auth()->user()->hasRole('SUPER_ADMIN') ? route('admin.dashboard') : (auth()->user()->hasRole('VOLUNTEER') ? route('volunteer.dashboard') : route('dashboard')) }}" wire:navigate class="text-xl font-bold text-gray-800">
+                            Foundation CRM
                         </a>
                     @else
-                        <a href="/" wire:navigate>
-                            <x-application-logo class="block h-8 w-auto fill-current text-gray-800" />
+                        <a href="/" wire:navigate class="text-xl font-bold text-gray-800">
+                            Foundation CRM
                         </a>
                     @endauth
                 </div>
